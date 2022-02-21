@@ -54,7 +54,7 @@ GO
 select *, system_user from super_bowl_qb_stats
 where qb_epa_play_A > qb_epa_play_B OR qb_passer_rating_A > qb_passer_rating_B
 GO
--- 21/21 or 100% of the time the winning qb has either a better epa/play or a better passer rating
+-- 20/21 or a little bit above 95% of the time the winning qb has either a better epa/play or a better passer rating
 select *, SYSTEM_USER from super_bowl_qb_stats
 where qb_epa_play_A > qb_epa_play_B AND qb_passer_rating_A > qb_passer_rating_B
 GO
