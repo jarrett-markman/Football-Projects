@@ -1,0 +1,95 @@
+library(tidyverse)
+library(ggimage)
+library(nflverse)
+data <- load_pbp()
+total_rushes <- data %>%
+  filter(rush ==1) %>%
+  group_by(posteam) %>%
+  filter(posteam != 'N/A') %>%
+  summarise(rushes = n())
+total_passes <- data %>%
+  filter(pass == 1) %>%
+  group_by(posteam) %>%
+  filter(posteam != 'N/A') %>%
+  summarise(passes = n())
+team_epa <- data %>%
+  group_by(posteam) %>%
+  filter(posteam != 'N/A') %>%
+  summarise(avg_epa = mean(epa))
+team_rush_epa <- data %>%
+  filter(rush == 1) %>%
+  group_by(posteam) %>%
+  filter(posteam != 'N/A') %>%
+  summarise(rush_epa = mean(epa)) 
+team_pass_epa <- data %>%
+  filter(pass == 1) %>%
+  group_by(posteam) %>%
+  filter(posteam != 'N/A') %>%
+  summarise(pass_epa = mean(epa))
+data <- total_passes %>%
+  left_join(total_rushes, by = 'posteam') %>%
+  left_join(team_epa, by = 'posteam') %>%
+  left_join(team_rush_epa, by = 'posteam') %>%
+  left_join(team_pass_epa, by = 'posteam')
+data <- data %>%
+  mutate(plays = rushes + passes,
+         rush_rate = rushes/plays,
+         pass_rate = passes/plays)
+data %>%
+  ggplot(aes(x=rush_rate, y=rush_epa)) +
+  geom_nfl_logos(aes(team_abbr = posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x= "Rush Rate",
+       y= "Rush EPA",
+       title = 'Are Rush Rate and Rush EPA Correlated?',
+       caption = 'Jarrett Markman | data: nflfastR') +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
+data %>%
+  ggplot(aes(x=pass_rate, y=pass_epa)) +
+  geom_nfl_logos(aes(team_abbr = posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x='Pass Rate',
+       y='Pass EPA',
+       title = 'Are Pass Rate and Pass EPA Correlated?',
+       caption = 'Jarrett Markman | data: nflfastR') +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
+data %>%
+  ggplot(aes(x=rush_rate, y=avg_epa)) +
+  geom_nfl_logos(aes(team_abbr=posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x='Rush Rate',
+       y='EPA/Play',
+       title = 'Do Rush Rates lead to a higher EPA/play?',
+       caption = 'Jarrett Markman | data: nflfastR'
+  ) +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
+data %>%
+  ggplot(aes(x=pass_rate, y=avg_epa)) +
+  geom_nfl_logos(aes(team_abbr=posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x='Pass Rate',
+       y='EPA/Play',
+       title = 'Do Pass Rates lead to a higher EPA/play?',
+       caption = 'Jarrett Markman | data: nflfastR'
+  ) +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
+data %>%
+  ggplot(aes(x=rush_rate, y=pass_epa)) +
+  geom_nfl_logos(aes(team_abbr=posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x='Rush Rate',
+       y='Pass EPA',
+       title = 'Does Rush Rate lead to better Pass Efficiency?',
+       caption = 'Jarrett Markman | data: nflfastR'
+  ) +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
+data %>%
+  ggplot(aes(x=pass_rate, y=rush_epa)) +
+  geom_nfl_logos(aes(team_abbr=posteam), width = .05) +
+  geom_smooth(method = 'lm', se = FALSE, col = 'black') +
+  labs(x='Pass Rate',
+       y='Rush EPA',
+       title = 'Does Pass Rate lead to better Rush Efficiency?',
+       caption = 'Jarrett Markman | data: nflfastR'
+  ) +
+  theme(plot.title = element_text(face = 'bold', size = 12, hjust = 0.5))
