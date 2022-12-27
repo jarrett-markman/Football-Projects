@@ -1,0 +1,83 @@
+library('tidyverse')
+library('nflfastR')
+#GETTING THE DATA
+data <- load_pbp(2010:2021)
+options(scipen = 9999)
+data_reg <- data %>%
+  filter(season_type == 'REG')
+data_post <- data %>%
+  filter(season_type == 'POST')
+#WHAT DO TEAMS DO ON INCOMPLETE PASSES
+incompletion <- data_reg %>%
+  filter(down == 2 & lag(incomplete_pass) == 1) %>%
+  filter(play_type != 'no_play')
+passes <- incompletion %>%
+  filter(play_type == 'pass')
+passes <- passes %>%
+  summarise(
+    avg_epa = mean(epa),
+    success_rate = sum(success)/n(),
+    Key = 'pass'
+  )
+runs <- incompletion %>%
+  filter(play_type == 'run')
+runs <- runs %>%
+  summarise(
+    avg_epa = mean(epa),
+    success_rate = sum(success)/n(),
+    Key = 'run'
+  )
+ggplot(NULL, aes(x=success_rate, y=avg_epa, color=Key)) +
+  geom_point(data = passes) +
+  geom_point(data = runs) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  theme_bw() +
+  labs(
+    x='Success Rate',
+    y='Average EPA/Play',
+    title = 'Passes Versus Rushes on Second Downs After Incompletions',
+    caption = 'Jarrett Markman | Data: nflverse'
+  ) +
+  theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
+team_rates <- incompletion %>%
+  group_by(posteam) %>%
+  mutate(
+    pass = case_when(
+      play_type == 'pass' ~ 1,
+      play_type != 'pass' ~ 0
+    ),
+    rush = case_when(
+      play_type == 'run' ~ 1,
+      play_type != 'run' ~ 0
+    )
+  ) %>%
+  summarise(
+    avg_epa = mean(epa),
+    success_rate = sum(success)/n(),
+    passes = sum(pass),
+    rushes = sum(rush),
+    attempts = passes + rushes,
+    pass_rate = passes/attempts,
+    rush_rate = rushes/attempts
+  )
+team_rates <- team_rates %>%
+  left_join(teams_colors_logos, by = c('posteam' = 'team_abbr'))
+team_rates %>%
+  ggplot(aes(x=pass_rate, y=success_rate)) +
+  geom_nfl_logos(aes('team_abbr' = posteam), width = 0.05625) +
+  labs(x = 'Pass Rate',
+       y= 'Success Rate',
+       title = 'Team Pass Rate and Success Rate',
+       caption = 'Jarrett Markman | Data: nflverse') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
+team_rates %>%
+  ggplot(aes(x=pass_rate, y=avg_epa)) +
+  geom_nfl_logos(aes('team_abbr' = posteam), width = 0.05625) +
+  labs(x = 'Pass Rate',
+       y= 'EPA/Play',
+       title = 'Team Pass Rate and EPA/Play',
+       caption = 'Jarrett Markman | Data: nflverse') +
+  theme_bw() +
+  theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
