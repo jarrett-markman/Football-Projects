@@ -34,7 +34,7 @@ ggplot(NULL, aes(x=success_rate, y=avg_epa, color=Key)) +
   labs(
     x='Success Rate',
     y='Average EPA/Play',
-    title = 'Passes Versus Rushes on Second Downs After Incompletions',
+    title = 'Success Rates and EPA/Play after First Down Incompletions',
     caption = 'Jarrett Markman | Data: nflverse'
   ) +
   theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
