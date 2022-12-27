@@ -127,5 +127,6 @@ sacks %>%
     caption = 'Jarrett Markman | Data: nflverse'
   ) +
   theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
+cor(sacks$sacks.x, sacks$sacks.y)
 #Based on the density plot, it can be seen that a majority of the time players will have low sack totals in one year most likely will have low sack totals in the following year.
 #Additionally, players with high sack totals typically will continue to have high sack totals. 
