@@ -1,0 +1,122 @@
+library('tidyverse')
+library('nflfastR')
+#GETTING THE DATA
+data <- load_pbp(2010:2021)
+options(scipen = 9999)
+data_reg <- data %>%
+  filter(season_type == 'REG')
+data_post <- data %>%
+  filter(season_type == 'POST')
+#ICING THE KICKER
+ice <- data_reg %>%
+  filter(field_goal_attempt == 1 & lag(timeout) == 1)
+no_ice <- data_reg %>%
+  filter(field_goal_attempt == 1 & lag(timeout) != 1)
+ice_4q_onescore <- ice %>%
+  filter(qtr == 4) %>%
+  filter(score_differential >= -3 & score_differential <= 3)
+no_ice_4q_onescore <- no_ice %>%
+  filter(qtr == 4) %>%
+  filter(score_differential >= -3 & score_differential <= 3)
+ice <- ice %>%
+  group_by(season) %>%
+  mutate(
+    make = case_when(
+      field_goal_result == 'made' ~ 1,
+      field_goal_result != 'made' ~ 0
+    ),
+    miss = case_when(
+      field_goal_result == 'missed' | field_goal_result == 'blocked' ~ 1,
+      field_goal_result == 'made' ~ 0
+    )
+  ) %>%
+  summarise(
+    fg_makes = sum(make),
+    fg_misses = sum(miss),
+    fg_attempts = fg_makes + fg_misses,
+    field_goal_percentage = fg_makes/fg_attempts * 100
+  )
+no_ice <- no_ice %>%
+  group_by(season) %>%
+  mutate(
+    make = case_when(
+      field_goal_result == 'made' ~ 1,
+      field_goal_result != 'made' ~ 0
+    ),
+    miss = case_when(
+      field_goal_result == 'missed' | field_goal_result == 'blocked' ~ 1,
+      field_goal_result == 'made' ~ 0
+    )
+  ) %>%
+  summarise(
+    fg_makes = sum(make),
+    fg_misses = sum(miss),
+    fg_attempts = fg_makes + fg_misses,
+    field_goal_percentage = fg_makes/fg_attempts * 100
+  )
+ice_4q_onescore <- ice_4q_onescore %>%
+  group_by(season) %>%
+  mutate(
+    make = case_when(
+      field_goal_result == 'made' ~ 1,
+      field_goal_result != 'made' ~ 0
+    ),
+    miss = case_when(
+      field_goal_result == 'missed' | field_goal_result == 'blocked' ~ 1,
+      field_goal_result == 'made' ~ 0
+    )
+  ) %>%
+  summarise(
+    fg_makes = sum(make),
+    fg_misses = sum(miss),
+    fg_attempts = fg_makes + fg_misses,
+    field_goal_percentage = fg_makes/fg_attempts * 100
+  )
+no_ice_4q_onescore <- no_ice_4q_onescore %>%
+  group_by(season) %>%
+  mutate(
+    make = case_when(
+      field_goal_result == 'made' ~ 1,
+      field_goal_result != 'made' ~ 0
+    ),
+    miss = case_when(
+      field_goal_result == 'missed' | field_goal_result == 'blocked' ~ 1,
+      field_goal_result == 'made' ~ 0
+    )
+  ) %>%
+  summarise(
+    fg_makes = sum(make),
+    fg_misses = sum(miss),
+    fg_attempts = fg_makes + fg_misses,
+    field_goal_percentage = fg_makes/fg_attempts * 100
+  )
+ice <- ice %>%
+  mutate(Key = 'Ice Situations')
+no_ice <- no_ice %>%
+  mutate(Key = 'Non-Ice Situations')
+ggplot(NULL, aes(season, field_goal_percentage, color = Key)) +
+  geom_line(data = ice) +
+  geom_line(data = no_ice) +
+  labs(
+    x='Season',
+    y='Field Goal Percentage',
+    title = 'How is Field Goal Percentage Effected by "Icing the Kicker"?',
+    caption = 'Jarrett Markman | Data: nflverse'
+  ) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 12, hjust = .5, face = 'bold'))
+ice_4q_onescore <- ice_4q_onescore %>%
+  mutate(Key = 'Ice Situations')
+no_ice_4q_onescore <- no_ice_4q_onescore %>%
+  mutate(Key = 'Non-Ice Situations')
+ggplot(NULL, aes(season, field_goal_percentage, color = Key)) +
+  geom_line(data = ice_4q_onescore) +
+  geom_line(data = no_ice_4q_onescore) +
+  labs(
+    x='Season',
+    y='Field Goal Percentage',
+    title = 'How is Field Goal Percentage Effected by "Icing the Kicker" in Field-Goal Scores?',
+    caption = 'Jarrett Markman | Data: nflverse'
+  ) +
+  theme_bw() +
+  theme(plot.title = element_text(size = 12, hjust = .5, face = 'bold'))
