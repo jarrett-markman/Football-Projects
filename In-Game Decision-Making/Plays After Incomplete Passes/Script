@@ -5,8 +5,6 @@ data <- load_pbp(2010:2021)
 options(scipen = 9999)
 data_reg <- data %>%
   filter(season_type == 'REG')
-data_post <- data %>%
-  filter(season_type == 'POST')
 #WHAT DO TEAMS DO ON INCOMPLETE PASSES
 incompletion <- data_reg %>%
   filter(down == 2 & lag(incomplete_pass) == 1) %>%
