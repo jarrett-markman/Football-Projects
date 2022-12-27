@@ -1,0 +1,131 @@
+library('tidyverse')
+library('nflfastR')
+#GETTING THE DATA
+data <- load_pbp(2010:2021)
+options(scipen = 9999)
+data_reg <- data %>%
+  filter(season_type == 'REG')
+data_post <- data %>%
+  filter(season_type == 'POST')
+#how predictive are individual sacks year-to-year?
+data10 <- data_reg %>%
+  filter(season == 2010 & sack == 1)
+data11 <- data_reg %>%
+  filter(season == 2011 & sack == 1)
+data12 <- data_reg %>%
+  filter(season == 2012 & sack == 1)
+data13 <- data_reg %>%
+  filter(season == 2013 & sack == 1)
+data14 <- data_reg %>%
+  filter(season == 2014 & sack == 1)
+data15 <- data_reg %>%
+  filter(season == 2015 & sack == 1)
+data16 <- data_reg %>%
+  filter(season == 2016 & sack == 1)
+data17 <- data_reg %>%
+  filter(season == 2017 & sack == 1)
+data18 <- data_reg %>%
+  filter(season == 2018 & sack == 1)
+data19 <- data_reg %>%
+  filter(season == 2019 & sack == 1)
+data20 <- data_reg %>%
+  filter(season == 2020 & sack == 1)
+data21 <- data_reg %>%
+  filter(season == 2021 & sack == 1)
+data10 <- data10 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data11 <- data11 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data12 <- data12 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data13 <- data13 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data14 <- data14 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data15 <- data15 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data16 <- data16 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data17 <- data17 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data18 <- data18 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data19 <- data19 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data20 <- data20 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data21 <- data21 %>%
+  count(sack_player_name) %>%
+  mutate(sacks = n) %>%
+  select(sack_player_name, sacks) %>%
+  filter(sack_player_name != 'NA')
+data10_11 <- data10 %>%
+  inner_join(data11, by = 'sack_player_name')
+data11_12 <- data11 %>%
+  inner_join(data12, by = 'sack_player_name')
+data12_13 <- data12 %>%
+  inner_join(data13, by = 'sack_player_name')
+data13_14 <- data13 %>%
+  inner_join(data14, by = 'sack_player_name')
+data14_15 <- data14 %>%
+  inner_join(data15, by = 'sack_player_name')
+data15_16 <- data15 %>%
+  inner_join(data16, by = 'sack_player_name')
+data16_17 <- data16 %>%
+  inner_join(data17, by = 'sack_player_name')
+data17_18 <- data17 %>%
+  inner_join(data18, by = 'sack_player_name')
+data18_19 <- data18 %>%
+  inner_join(data19, by = 'sack_player_name')
+data19_20 <- data19 %>%
+  inner_join(data20, by = 'sack_player_name')
+data20_21 <- data20 %>%
+  inner_join(data21, by = 'sack_player_name')
+sacks <- bind_rows(data10_11, data11_12, data12_13, data13_14, data14_15, data15_16, 
+                   data16_17, data17_18, data18_19, data19_20, data20_21)
+sacks %>%
+  ggplot(aes(sacks.x, sacks.y)) +
+  geom_density_2d_filled() +
+  geom_smooth() +
+  labs(
+    x='Sacks in the Previous Year',
+    y='Sacks in the Following Year',
+    title = 'How Predictive are sacks Year-to-Year?',
+    caption = 'Jarrett Markman | Data: nflverse'
+  ) +
+  theme(plot.title = element_text(size = 12, face = 'bold', hjust = .5))
+#Based on the density plot, it can be seen that a majority of the time players will have low sack totals in one year most likely will have low sack totals in the following year.
+#Additionally, players with high sack totals typically will continue to have high sack totals. 
