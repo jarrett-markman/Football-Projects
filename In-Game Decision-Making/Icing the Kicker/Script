@@ -9,7 +9,7 @@ data_post <- data %>%
   filter(season_type == 'POST')
 #ICING THE KICKER
 ice <- data_reg %>%
-  filter(field_goal_attempt == 1 & lag(timeout) == 1)
+  filter(field_goal_attempt == 1 & lag(timeout) == 1 & lag(timeout_team) == defteam)
 no_ice <- data_reg %>%
   filter(field_goal_attempt == 1 & lag(timeout) != 1)
 ice_4q_onescore <- ice %>%
